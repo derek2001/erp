@@ -1,4 +1,5 @@
 <?
+/*
 function decodeValue(&$arr,$value)
 {
 	 $convertTab = array('id_slab'=>'Slab ID', 'id_frame'=>'Frame','slab_nbr'=>'Number of slabs');
@@ -17,6 +18,9 @@ function decodeValue(&$arr,$value)
       }
 }
 
+*/
+
+/*
 function decodeSlab(&$arr,$value)
 {
 	 $convertTab = array('id_slab'=>'Slab ID', 'id_frame'=>'Frame','slab_nbr'=>'Number of slabs');
@@ -39,6 +43,7 @@ function decodeSlab(&$arr,$value)
       	    }
       }
 }
+*/
 
 include_once("config.php");
 
@@ -52,7 +57,7 @@ $smarty = new Smarty;
         $smarty->assign('menulink',$_SESSION['user']->getMenuLink());
         //----------------------------------------------------------------------
 
-
+/*
 if(isset($_POST['update']) && isset($_FILES['updatelist'])) {
 	$lines = file($_FILES['updatelist']['tmp_name']);
 
@@ -65,8 +70,8 @@ if(isset($_POST['update']) && isset($_FILES['updatelist'])) {
 	unset($_POST); unset($_FILES);
 	header("Location: picture_board.php");
 }
-		
-		
+*/
+/*
 if(isset($_GET['cleardup']) && $_GET['cleardup']==1) {
 	$_SESSION["user"]->db->select("ALTER TABLE slab_frame_duplicate ADD id int IDENTITY(1,1)");	
 	$_SESSION["user"]->db->select("WITH Dublicates_CTE(id_slab_frame, id_slab, id_frame, id)
@@ -90,13 +95,17 @@ if(isset($_GET['cleardup']) && $_GET['cleardup']==1) {
 	$_SESSION["user"]->db->select("ALTER TABLE slab_frame_duplicate DROP COLUMN id");	
 	header("Location: picture_board.php");
 }
+*/
+
+/*
 if(isset($_GET['cleardup']) && $_GET['cleardup']==2) {
 	$_SESSION["user"]->db->select("delete from slab_frame_duplicate");
 	$_SESSION["user"]->db->select("update slab_frame set slab_board = null, slab_board_date = null");
 	header("Location: picture_board.php");
 }
+*/
 
-
+/*
 if(isset($_GET['print'])) {
 	$print = explode(",",$_GET['print']);
 	echo "<table border=1 cellpadding=2 cellspacing=2>";
@@ -109,7 +118,8 @@ if(isset($_GET['print'])) {
 	echo "</table>";
 	die();
 }
-
+*/
+/*
 if(isset($_GET['remove']) && isset($_GET['sf'])) {
 	$_SESSION["user"]->db->select("update slab_frame set slab_board = null, slab_board_date = null where id=".$_GET['sf']);
 	$_SESSION["user"]->db->select("delete from slab_frame_duplicate where id_slab=".$_GET['s']." and id_frame=".$_GET['f']);
@@ -119,6 +129,8 @@ if(isset($_GET['reset']) && isset($_GET['sf'])) {
 	$_SESSION["user"]->db->select("update slab_frame set slab_board_date = current_timestamp where id=".$_GET['sf']);
 	exit();
 }
+
+*/
 
 $loc = $_SESSION["user"]->getLocationProfile();
 

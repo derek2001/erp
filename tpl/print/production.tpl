@@ -27,7 +27,9 @@
           <tr><TD width="70%" align=left style="FONT: 20px arial,verdana,tahoma" nowrap><B>Stone Name:&nbsp;</B>{$data.unit[unt].slab.st_name}&nbsp;&nbsp;{$data.unit[unt].slab.sign} - {$data.unit[unt].slab.thickness}
                   {if strripos($data.unit[unt].slab.st_name, 'Blue Pearl') !== false}<br><span style="background-color: black; color:white; font-weight: bold">PAY ATTENTION TO DIRECTION OF THE FLAKES</span>{/if}</td>
                   {if $data.unit[unt].slab.sign != '' && $data.unit[unt].status.status < 5}
-                      {if $data.unit[unt].cnt_pic.cnt_raw<1 || $data.unit[unt].cnt_pic.status==1}
+                      {if $data.unit[unt].cnt_pic.cnt_raw<1 && $data.unit[unt].cnt_pic.cnt_erp<1 && $data.unit[unt].cnt_pic.cnt_www<3
+                        && $data.unit[unt].cnt_pic.cnt_jpg<1 && $data.unit[unt].cnt_pic.www_pc1==''
+                        && $data.unit[unt].cnt_pic.www_pc2=='' && $data.unit[unt].cnt_pic.www_pc3==''}
                           <td align=right valign="top" style="FONT: 35px arial,verdana,tahoma"  nowrap>
                                   <TABLE bgColor=#000000 width="30%">
                                       <TBODY><tr><td style="FONT: 35px arial,verdana,tahoma"><span style=" color: white; font-weight: bold">Picture</span></tr></td></TBODY>
@@ -106,9 +108,12 @@
   <TR><TD colSpan=2 height="1" valign="top" width="100%" bgcolor="#7f7f7f"></TD></TR>
   <TR>
     <TD vAlign=middle align="center" width="47%">
-        {if $data.unit[unt].slab.slab_sample == 1}
-            <div style="border:10px dashed black;padding:2px; margin-top: 5px; font-size:54px; font-weight:bold; font-family:Verdana, Arial, Helvetica, sans-serif;">CUT SAMPLES</div>
-        {/if}
+	  {if $data.unit[unt].slab.slab_sample == 1}
+	  <div style="border:10px dashed black;padding:2px; margin-top: 5px; font-size:26px; font-weight:bold; font-family:Verdana, Arial, Helvetica, sans-serif;">CUT SAMPLES</div><hr>
+	  {/if}
+      <div vAlign="middle" align="center" width="47">
+          {"`$data.unit[unt].id`-1"|barcode}
+      </div>
 
       <!--<TABLE borderColor=#ffffff cellSpacing=2 cellPadding=1 width="100%" 
       border=0>

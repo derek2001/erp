@@ -4,7 +4,10 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 -- picture board
+IF OBJECT_ID('stone_image', 'U') IS NOT NULL 
+BEGIN
 DROP TABLE [dbo].[stone_image];
+END
 
 DECLARE @edit_frame_mod_id INT = 0;
 SELECT @edit_frame_mod_id = id FROM dbo.module WHERE name LIKE 'Edit frame pictures';

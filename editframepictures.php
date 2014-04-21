@@ -3,6 +3,7 @@ include_once("config.php");
 DEFINE ('UPLOAD_PATH', 'upload/stone/');
 DEFINE ('MAX_UPLOAD_SIZE', 31457280);
 DEFINE ('MAX_NUM_PICTURES', 6);
+DEFINE('DS', '/');
 // DEFINE ('MAX_UPLOAD_SIZE', 15728640);
 
 abstract class PictureType
@@ -58,9 +59,19 @@ function uploadImage($fileName, $tmpFilePath, $slab_frame_id, $slab_id, $frame_i
     // make sure we have file_path
     if ($tmpFilePath != "")
     {
+        // create subdirectory
+        $subDirName = $slab_frame_id . '_' . $slab_id . '_' .  $frame_id . '_' . $stone_id;
+
+        $dirFullPath = UPLOAD_PATH . $subDirName. DS;
+        if (!file_exists($dirFullPath))
+        {
+            if (!mkdir($dirFullPath, 0777))
+                throw new RuntimeException('Failed to create folder.');
+        }
+
         // setup the file path
-        $newFilePath = UPLOAD_PATH . $fileName;
-        // upload the file into the new location
+        // $newFilePath = UPLOAD_PATH . $subDirName . $fileName;
+        $newFilePath = $dirFullPath . $fileName;
         if (move_uploaded_file($tmpFilePath, $newFilePath))
         {
             $label = "";
@@ -98,8 +109,9 @@ function uploadImage($fileName, $tmpFilePath, $slab_frame_id, $slab_id, $frame_i
             if ($_SESSION["user"]->db->numRows() > 0)
                 $need_pics_status_db = (int)$rs[0];
 
+            $dbFullPath = $subDirName . DS . $fileName;
             $sql_insert = "INSERT INTO stone_image (id_slab_frame, id_frame, id_slab, id_stone, label, type, size, status, full_path, create_date, update_date) VALUES
-                (".$slab_frame_id.", ".$frame_id.", ".$slab_id.", ".$stone_id.", '".$label."', ".$imageType.", ".$imageSize.", ". $need_pics_status_db .",'".$fileName."', GETDATE(), GETDATE())";
+                (".$slab_frame_id.", ".$frame_id.", ".$slab_id.", ".$stone_id.", '".$label."', ".$imageType.", ".$imageSize.", ". $need_pics_status_db .",'".$dbFullPath."', GETDATE(), GETDATE())";
 
             $_SESSION["user"]->db->insert2($sql_insert);
             if ($_SESSION["user"]->db->numRows() > 0)
@@ -112,11 +124,10 @@ function uploadImage($fileName, $tmpFilePath, $slab_frame_id, $slab_id, $frame_i
         } else
         {
             $error = "Saving data failed.";
-            return false;
+            throw new RuntimeException($error);
         }
     }
 }
-
 
 function randString($length, $charset='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789')
 {
@@ -128,11 +139,13 @@ function randString($length, $charset='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmno
     return $str;
 }
 
-function isImageNameValid($imageName)
+function isImageNameValid($dbFullPath)
 {
-    if (!empty($imageName))
+    if (!empty($dbFullPath))
     {
-        $sql_query = "SELECT id FROM stone_image WHERE full_path LIKE '".$imageName."'";
+        // get slab_frame_id, slab_id, frame_id, stone_id
+
+        $sql_query = "SELECT id FROM stone_image WHERE full_path LIKE '".$dbFullPath."'";
         $_SESSION["user"]->db->select($sql_query);
 
         if ($_SESSION["user"]->db->numRows() > 0)
@@ -158,22 +171,22 @@ function checkFileError($error)
     }
 
     return true;
-
 }
 
-function validateOnSubmit()
+function validateOnSubmit($slab_frame_id, $slab_id, $frame_id, $stone_id)
 {
     $error_duplicate = '';
     $error_size_limit = '';
 
     $file_names = array();
+    $fileNamePath = $slab_frame_id . '_' . $slab_id . '_' .  $frame_id . '_' . $stone_id . DS;
 
     for ($i = 0; $i < count($_FILES['picture_to_upload_'.PictureType::RAWPicture]['name']); $i++)
     {
         $fileName = $_FILES['picture_to_upload_'.PictureType::RAWPicture]['name'][$i];
         if (!empty($fileName))
         {
-            if (!isImageNameValid($fileName))
+            if (!isImageNameValid($fileNamePath . $fileName))
             {
                 $error_duplicate = $error_duplicate . 'File with name ' . $fileName . ' already exists <br />';
             } else {
@@ -196,7 +209,7 @@ function validateOnSubmit()
         $fileName = $_FILES['picture_to_upload_'.PictureType::JPEGPicture]['name'][$i];
         if (!empty($fileName))
         {
-            if (!isImageNameValid($fileName))
+            if (!isImageNameValid($fileNamePath . $fileName))
             {
                 $error_duplicate = $error_duplicate . 'File with name ' . $fileName . ' already exists <br />';
             } else {
@@ -217,9 +230,10 @@ function validateOnSubmit()
     for ($i = 0; $i < count($_FILES['picture_to_upload_'.PictureType::ERPPicture]['name']); $i++)
     {
         $fileName = $_FILES['picture_to_upload_'.PictureType::ERPPicture]['name'][$i];
+
         if (!empty($fileName))
         {
-            if (!isImageNameValid($fileName))
+            if (!isImageNameValid($fileNamePath . $fileName))
             {
                 $error_duplicate = $error_duplicate . 'File with name ' . $fileName . ' already exists <br />';
             } else {
@@ -242,7 +256,7 @@ function validateOnSubmit()
         $fileName = $_FILES['picture_to_upload_'.PictureType::WWWPicture.'_'.PictureSize::FullView]['name'][$i];
         if (!empty($fileName))
         {
-            if (!isImageNameValid($fileName))
+            if (!isImageNameValid($fileNamePath . $fileName))
             {
                 $error_duplicate = $error_duplicate . 'File with name ' . $fileName . ' already exists <br />';
             } else {
@@ -265,7 +279,7 @@ function validateOnSubmit()
         $fileName = $_FILES['picture_to_upload_'.PictureType::WWWPicture.'_'.PictureSize::MediumView]['name'][$i];
         if (!empty($fileName))
         {
-            if (!isImageNameValid($fileName))
+            if (!isImageNameValid($fileNamePath . $fileName))
             {
                 $error_duplicate = $error_duplicate . 'File with name ' . $fileName . ' already exists <br />';
             } else {
@@ -288,7 +302,7 @@ function validateOnSubmit()
         $fileName = $_FILES['picture_to_upload_'.PictureType::WWWPicture.'_'.PictureSize::MacroView]['name'][$i];
         if (!empty($fileName))
         {
-            if (!isImageNameValid($fileName))
+            if (!isImageNameValid($fileNamePath . $fileName))
             {
                 $error_duplicate = $error_duplicate . 'File with name ' . $fileName . ' already exists <br />';
             } else {
@@ -398,9 +412,8 @@ try
         throw new RuntimeException(sprintf('The server was unable to handle that much data (%s mbytes) %s due to its current configuration. Please upload images separately',  round($totalMBytes), '<br />'));
     }
 
-    validateOnSubmit();
 
-    // first need to check the submit form methof
+    // first need to check the submit form method
     if ($_SERVER['REQUEST_METHOD'] === 'POST')
     {
         // update status if changed (onlyt when post and numb of pics > MAX_NUM_PICTURES)
@@ -437,90 +450,94 @@ try
                 }
             }
         }
+
+        // submitting new files
+        validateOnSubmit($slab_frame_id, $slab_id, $frame_id, $stone_id);
+
+        ////////////////////////////////////////////////////////////////////////
+        // ------------------ raw pictures do not have size property in its name
+        for ($i = 0; $i < count($_FILES['picture_to_upload_'.PictureType::RAWPicture]['name']); $i++)
+        {
+            // get the temp file path
+            $fileName = $_FILES['picture_to_upload_'.PictureType::RAWPicture]['name'][$i];
+            if (!empty($fileName))
+            {
+                $tmpFilePath = $_FILES['picture_to_upload_'.PictureType::RAWPicture]['tmp_name'][$i];
+               // if (isImageNameValid($fileName))
+                    uploadImage($fileName, $tmpFilePath, $slab_frame_id, $slab_id, $frame_id, $stone_id, PictureType::RAWPicture, PictureSize::RawView);
+                //else
+                //    $error = 'File with the name '.$fileName.' already exists';
+            }
+        }
+        // adding jpg picture
+        for ($i = 0; $i < count($_FILES['picture_to_upload_'.PictureType::JPEGPicture]['name']); $i++)
+        {
+            // get the temp file path
+            $fileName = $_FILES['picture_to_upload_'.PictureType::JPEGPicture]['name'][$i];
+            if (!empty($fileName))
+            {
+                $tmpFilePath = $_FILES['picture_to_upload_'.PictureType::JPEGPicture]['tmp_name'][$i];
+                //if (isImageNameValid($fileName))
+                    uploadImage($fileName, $tmpFilePath, $slab_frame_id, $slab_id, $frame_id, $stone_id, PictureType::JPEGPicture, PictureSize::JPEGView);
+                //else
+                //    $error = 'File with the name '.$fileName.' already exists';
+            }
+        }
+
+        // adding erp picture
+        for ($i = 0; $i < count($_FILES['picture_to_upload_'.PictureType::ERPPicture]['name']); $i++)
+        {
+            // get the temp file path
+            $fileName = $_FILES['picture_to_upload_'.PictureType::ERPPicture]['name'][$i];
+            if (!empty($fileName))
+            {
+                $tmpFilePath = $_FILES['picture_to_upload_'.PictureType::ERPPicture]['tmp_name'][$i];
+                //if (isImageNameValid($fileName))
+                    uploadImage($fileName, $tmpFilePath, $slab_frame_id, $slab_id, $frame_id, $stone_id, PictureType::ERPPicture, PictureSize::ErpView);
+                //else
+                //    $error = 'File with the name '.$fileName.' already exists';
+            }
+        }
+
+        // ---------------- adding www images
+        for ($i = 0; $i < count($_FILES['picture_to_upload_'.PictureType::WWWPicture.'_'.PictureSize::FullView]['name']); $i++)
+        {
+            $fileName = $_FILES['picture_to_upload_'.PictureType::WWWPicture.'_'.PictureSize::FullView]['name'][$i];
+            if (!empty($fileName))
+            {
+                $tmpFilePath = $_FILES['picture_to_upload_'.PictureType::WWWPicture.'_'.PictureSize::FullView]['tmp_name'][$i];
+                //if (isImageNameValid($fileName))
+                    uploadImage($fileName, $tmpFilePath, $slab_frame_id, $slab_id, $frame_id, $stone_id, PictureType::WWWPicture, PictureSize::FullView);
+                //else
+                //    $error = 'File with the name '.$fileName.' already exists';
+            }
+        }
+        for ($i = 0; $i < count($_FILES['picture_to_upload_'.PictureType::WWWPicture.'_'.PictureSize::MacroView]['name']); $i++)
+        {
+            $fileName = $_FILES['picture_to_upload_'.PictureType::WWWPicture.'_'.PictureSize::MacroView]['name'][$i];
+            if (!empty($fileName))
+            {
+                $tmpFilePath = $_FILES['picture_to_upload_'.PictureType::WWWPicture.'_'.PictureSize::MacroView]['tmp_name'][$i];
+                //if (isImageNameValid($fileName))
+                    uploadImage($fileName, $tmpFilePath, $slab_frame_id, $slab_id, $frame_id, $stone_id, PictureType::WWWPicture, PictureSize::MacroView);
+                //else
+                //    $error = 'File with the name '.$fileName.' already exists';
+            }
+        }
+        for ($i = 0; $i < count($_FILES['picture_to_upload_'.PictureType::WWWPicture.'_'.PictureSize::MediumView]['name']); $i++)
+        {
+            $fileName = $_FILES['picture_to_upload_'.PictureType::WWWPicture.'_'.PictureSize::MediumView]['name'][$i];
+            if (!empty($fileName))
+            {
+                $tmpFilePath = $_FILES['picture_to_upload_'.PictureType::WWWPicture.'_'.PictureSize::MediumView]['tmp_name'][$i];
+                //if (isImageNameValid($fileName))
+                    uploadImage($fileName, $tmpFilePath, $slab_frame_id, $slab_id, $frame_id, $stone_id, PictureType::WWWPicture, PictureSize::MediumView);
+                //else
+                //    $error = 'File with the name '.$fileName.' already exists';
+            }
+        }
     }
 
-    ////////////////////////////////////////////////////////////////////////
-    // ------------------ raw pictures do not have size property in its name
-    for ($i = 0; $i < count($_FILES['picture_to_upload_'.PictureType::RAWPicture]['name']); $i++)
-    {
-        // get the temp file path
-        $fileName = $_FILES['picture_to_upload_'.PictureType::RAWPicture]['name'][$i];
-        if (!empty($fileName))
-        {
-            $tmpFilePath = $_FILES['picture_to_upload_'.PictureType::RAWPicture]['tmp_name'][$i];
-            if (isImageNameValid($fileName))
-                uploadImage($fileName, $tmpFilePath, $slab_frame_id, $slab_id, $frame_id, $stone_id, PictureType::RAWPicture, PictureSize::RawView);
-            else
-                $error = 'File with the name '.$fileName.' already exists';
-        }
-    }
-    // adding jpg picture
-    for ($i = 0; $i < count($_FILES['picture_to_upload_'.PictureType::JPEGPicture]['name']); $i++)
-    {
-        // get the temp file path
-        $fileName = $_FILES['picture_to_upload_'.PictureType::JPEGPicture]['name'][$i];
-        if (!empty($fileName))
-        {
-            $tmpFilePath = $_FILES['picture_to_upload_'.PictureType::JPEGPicture]['tmp_name'][$i];
-            if (isImageNameValid($fileName))
-                uploadImage($fileName, $tmpFilePath, $slab_frame_id, $slab_id, $frame_id, $stone_id, PictureType::JPEGPicture, PictureSize::JPEGView);
-            else
-                $error = 'File with the name '.$fileName.' already exists';
-        }
-    }
-
-    // adding erp picture
-    for ($i = 0; $i < count($_FILES['picture_to_upload_'.PictureType::ERPPicture]['name']); $i++)
-    {
-        // get the temp file path
-        $fileName = $_FILES['picture_to_upload_'.PictureType::ERPPicture]['name'][$i];
-        if (!empty($fileName))
-        {
-            $tmpFilePath = $_FILES['picture_to_upload_'.PictureType::ERPPicture]['tmp_name'][$i];
-            if (isImageNameValid($fileName))
-                uploadImage($fileName, $tmpFilePath, $slab_frame_id, $slab_id, $frame_id, $stone_id, PictureType::ERPPicture, PictureSize::ErpView);
-            else
-                $error = 'File with the name '.$fileName.' already exists';
-        }
-    }
-
-    // ---------------- adding www images
-    for ($i = 0; $i < count($_FILES['picture_to_upload_'.PictureType::WWWPicture.'_'.PictureSize::FullView]['name']); $i++)
-    {
-        $fileName = $_FILES['picture_to_upload_'.PictureType::WWWPicture.'_'.PictureSize::FullView]['name'][$i];
-        if (!empty($fileName))
-        {
-            $tmpFilePath = $_FILES['picture_to_upload_'.PictureType::WWWPicture.'_'.PictureSize::FullView]['tmp_name'][$i];
-            if (isImageNameValid($fileName))
-                uploadImage($fileName, $tmpFilePath, $slab_frame_id, $slab_id, $frame_id, $stone_id, PictureType::WWWPicture, PictureSize::FullView);
-            else
-                $error = 'File with the name '.$fileName.' already exists';
-        }
-    }
-    for ($i = 0; $i < count($_FILES['picture_to_upload_'.PictureType::WWWPicture.'_'.PictureSize::MacroView]['name']); $i++)
-    {
-        $fileName = $_FILES['picture_to_upload_'.PictureType::WWWPicture.'_'.PictureSize::MacroView]['name'][$i];
-        if (!empty($fileName))
-        {
-            $tmpFilePath = $_FILES['picture_to_upload_'.PictureType::WWWPicture.'_'.PictureSize::MacroView]['tmp_name'][$i];
-            if (isImageNameValid($fileName))
-                uploadImage($fileName, $tmpFilePath, $slab_frame_id, $slab_id, $frame_id, $stone_id, PictureType::WWWPicture, PictureSize::MacroView);
-            else
-                $error = 'File with the name '.$fileName.' already exists';
-        }
-    }
-    for ($i = 0; $i < count($_FILES['picture_to_upload_'.PictureType::WWWPicture.'_'.PictureSize::MediumView]['name']); $i++)
-    {
-        $fileName = $_FILES['picture_to_upload_'.PictureType::WWWPicture.'_'.PictureSize::MediumView]['name'][$i];
-        if (!empty($fileName))
-        {
-            $tmpFilePath = $_FILES['picture_to_upload_'.PictureType::WWWPicture.'_'.PictureSize::MediumView]['tmp_name'][$i];
-            if (isImageNameValid($fileName))
-                uploadImage($fileName, $tmpFilePath, $slab_frame_id, $slab_id, $frame_id, $stone_id, PictureType::WWWPicture, PictureSize::MediumView);
-            else
-                $error = 'File with the name '.$fileName.' already exists';
-        }
-    }
 } catch (RuntimeException $e)
 {
     $error = $e->getMessage();
