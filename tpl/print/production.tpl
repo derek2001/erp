@@ -217,11 +217,47 @@
             for=rdoSurfaceFinishHoned><b>HONED</b></LABEL>{/if}</SPAN></TD></TR>
         <TR>
           <TD class="ptd12"><B>Created By:</B>&nbsp;&nbsp;</TD>
-          <TD borderColor=#000000 class="ptd13">&nbsp;{$data.unit[unt].cr_name}</TD></TR></TBODY></TABLE></TD></TR>
-  <TR><TD colSpan=2 height="1" valign="top" width="100%" bgcolor="#7f7f7f"></TD></TR>
+          <TD borderColor=#000000 class="ptd13">&nbsp;{$data.unit[unt].cr_name}</TD>
+        </TR>
+        </TBODY></TABLE>
+		</TD>
+        </TR>
+  <TR  style="display: {if $data.order.contest == 0}none;{/if}">
+  <TD>
+
+          <table width="100%" border="0" cellspacing="1" cellpadding="1" bgcolor="black">
+              <tr>
+                  <td width="30px" align="center">&nbsp;</td>
+                  <td width="20px" align="right">
+                      <img src="./css/images/camera3.jpg" width="24" height="22" alt="Take Photos Contest"/>
+                  </td>
+                  <td width="570px" bgcolor="black">&nbsp;&nbsp;<SPAN style="FONT: 14px arial,verdana,tahoma;color:white"><strong>TAKE PHOTOS FOR CONTEST</strong> </SPAN></td>
+                  <td width="50px" align="center">&nbsp;</td>
+              </tr>
+          </table>
+
+  </TD>
+  </TR>
+  <TR> 
+  <TD colSpan=2 height="1" valign="top" width="100%" bgcolor="#7f7f7f"></TD></TR>
   <TR>
     <TD colSpan=2>
-    
+    <TABLE cellSpacing=0 cellPadding=0 width="100%" border=0 style="display:{if $templator_count[0].cantidad <= 0}none;{/if}">
+     <TR>
+      <TD width="7%" nowrap style="FONT: 16px arial,verdana,tahoma" valign="top"><B>Templater:&nbsp;</B></TD>
+      <TD width="93%" nowrap style="FONT: 16px arial,verdana,tahoma">
+      	 <table width="100%" border="0" cellspacing="0" cellpadding="0" bordercolor="#FFFFFF">
+            {section name=in loop=$templator}
+             <tr class="{cycle values="cell_reccolor_lightblue_01a,cell_reccolor_lightblue_01b"}";>
+                {if $templator[in].temp != ''}<td valign="top">{$templator[in].temp}</td>{/if}
+             	{if $templator[in].inst != ''}<td valign="top">{$templator[in].inst}</td>{/if}   
+             </tr>
+            {/section}
+         </table>
+      </TD>
+     </TR>
+    </TABLE>
+
       <TABLE cellSpacing=0 cellPadding=0 width="100%" border=0>
         <TBODY>
         <TR>
@@ -229,14 +265,21 @@
           {$data.order.pay_level}
           {if $data.order.is_contractor}
           <BR><div style="FONT: 16px arial,verdana,tahoma">
-            <B>Balance:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</B>{if $data.order.dep_required}FINAL PAYMENT REQUIRED{/if}</div><BR>
+            <B>Balance:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</B>
+            {if $data.order.dep_required}FINAL PAYMENT REQUIRED{/if}
+           </div>
+           <BR>
           {/if}
           </TD>
           <TD>
             <TABLE cellSpacing=0 cellPadding=0 width="100%" border=0>
               <TBODY>
               <TR>
-                <TD align=right width="70%"></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD></tr>
+                <TD align=right width="70%"></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+                
+                
+                
+  </TD></tr>
   <TR><TD colSpan=2 height="1" valign="top" width="100%" bgcolor="#7f7f7f"></TD></TR>
   <TR>
     <TD vAlign=top colSpan=2>

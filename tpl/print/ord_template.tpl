@@ -48,8 +48,7 @@
   <TR><TD colSpan=2 height="1" valign="top" width="100%" bgcolor="#7f7f7f"></TD></TR>
   <TR>
     <TD vAlign=top width="47%">
-      <TABLE borderColor=#ffffff cellSpacing=2 cellPadding=1 width="100%" 
-      border=0>
+      <TABLE  cellSpacing=2 cellPadding=1 width="100%" border=0>
         <TBODY>
         <TR>
           <TD align=middle colSpan=2 class="ptd13"><B><U>CLIENT INFO</U></B></SPAN> <BR></TD></TR>
@@ -83,10 +82,29 @@
                     <TD class="ptd12"><font color="red"><b>{$data.order.company_name}</b></font></TD>
                 </TR>
                 {/if}
-         </TBODY></TABLE></TD>
+
+        <tr style="display: {if $data.order.contest == 0}none;{/if}">
+            <td height="120px" colspan="2">
+
+                <table width="100%" border="0" cellspacing="1" cellpadding="1" bgcolor="black" style="margin-top: 55px;">
+                    <tr>
+                        <td width="30px" align="center">&nbsp;</td>
+                        <td width="20px" align="right">
+                            <img src="./css/images/camera3.jpg" width="24" height="22" alt="Take Photos Contest"/>
+                        </td>
+                        <td width="570px" bgcolor="black">&nbsp;&nbsp;<SPAN style="FONT: 14px arial,verdana,tahoma;color:white"><strong>TAKE PHOTOS FOR CONTEST</strong> </SPAN></td>
+                        <td width="50px" align="center">&nbsp;</td>
+                    </tr>
+                </table>
+
+            </td>
+        </tr>
+         </TBODY></TABLE>
+
+
+    </TD>
     <TD vAlign=top width="53%">
-      <TABLE borderColor=#ffffff cellSpacing=2 cellPadding=1 width="100%" 
-      border=1>
+      <TABLE borderColor=#ffffff cellSpacing=2 cellPadding=1 width="100%" border=0>
         <TBODY>
         <TR>
           <TD align=center colSpan=2 class="ptd13"><B><U>UNIT INFO</U></B><BR></TD></TR>

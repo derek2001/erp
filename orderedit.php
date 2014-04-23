@@ -15,6 +15,7 @@ return $wyn['val'];
 
 // -----------------------------------------------------------------------------BLEDY 
 
+
 if (isset($_GET['c']) && is_numeric($_GET['c']))
  switch($_GET['c'])
  {
@@ -73,16 +74,8 @@ if($_GET['geo'] == 1) {
 
 
 // --------------------------------------------------------------------------MUSI BYC ID ACCOUNT inaczej przenosi do account w celu wybrania customera
-
 if (!is_numeric($_REQUEST['id_account'])) header('Location: account.php');
-
-
 //-----------------------------------------------------------------------------------------------
-
-
-
-
-
 
 if (isset($_POST['alastid2']))
 	{
@@ -129,18 +122,9 @@ $ttt=0;
 $zunitu = $_GET['zu'];
 
 if(is_numeric($_GET['id'])) {
-    $_SESSION["user"]->db->select($ff='select distance d from [order] where id ='.$_GET['id']);
-    $dist = $_SESSION["user"]->db->fetchArray();
+$_SESSION["user"]->db->select($ff='select distance d from [order] where id ='.$_GET['id']);
+$dist = $_SESSION["user"]->db->fetchArray();
 }
-//print($ff);
-
-
-
-   //var_dump($unit_delete);
-   //var_dump($del_perm);
-//print_r($_POST);
-//print_r($_GET);
-
 
 // ----------------------------------------------------------------------------------------------------------------USUNIECIE UNITU Z ORDERU  
 
@@ -161,11 +145,9 @@ case "del" : if ($unit_delete)
              break;
 }
 
+
+
 //----------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
 
 //Assigning yard salesman
 if (is_numeric($_GET['id']) && (isset($_GET['assignme']) || isset($_GET['assign'])))
@@ -643,8 +625,16 @@ else if (isset($_POST['alastid']) && lastid_check($_POST['alastid']) && !isset($
 																 	$sql .= ",zone_coef='".$data['zone_coef']."',zone_charge='".$data['zone_charge']."'";
 																if (isset($_POST['only_template']) && is_numeric($_POST['only_template']))
 																	 $sql .= ',only_template=\''.$_POST['only_template'].'\'';
-																$sql.= " WHERE id='".$_POST['id']."'";
-															   echo $sql;
+
+                                                                $sql.= ",contest=".$_POST['contest']."";
+                                                                if($_POST['contest']==1)
+                                                                    $sql.= ", date_contest=GETDATE() ";
+                                                                else
+                                                                    $sql.= ", date_contest=NULL ";
+
+                                                                $sql.= ",contest_status='N'";
+                                                                $sql.= "WHERE id='".$_POST['id']."'";
+                                                                echo $sql;
 												                // die;
 																if ($_SESSION["user"]->db->update('[order]',$_POST['id'],$sql))
 																	{
@@ -751,7 +741,7 @@ else if (isset($_POST['alastid']) && lastid_check($_POST['alastid']) && !isset($
 																  		   fax, cell, status, backsplash, edge, area, name, distance, cust_price, cust_description, tot_price, discount,
 																		   d_price, tax_level, h_improvement, xml, form, temp_date,temp_time,templated, commition, worker_cost, zone_coef, 
 																		   zone_charge,cost_per_mile, floor_nbr, id_confirm, confirm_date, close_date, no_template, pick_up, deleted,
-																		   cr_date, cr_user) VALUES([dbo].[generateWOID](),'".$data['id_account']."','".$data['id_location']."',NULL,'"
+																		   cr_date, cr_user, contest, date_contest) VALUES([dbo].[generateWOID](),'".$data['id_account']."','".$data['id_location']."',NULL,'"
 																		   .$data['inv_number']."','".str_replace("'", "''", $data['address'])."', '".str_replace("'", "''", $data['town']).
 																		   "','".$data['_state']."', '".$data['zip']."','".$data['phone']."','".$data['w_phone']."','".$data['fax']."','".
 																		   $data['cell']."','".$data['status']."',0,0,0,'".str_replace("'", "''", $data['name'])."','0',CAST('"
@@ -768,7 +758,14 @@ else if (isset($_POST['alastid']) && lastid_check($_POST['alastid']) && !isset($
 																			$_SESSION['user']->db->select('select num_val as id from config_tab where name=\'inserted_WO_id\'');
 																		 	$insert = $_SESSION['user']->db->fetchArray();
 																			$_SESSION['ORDER_SESSION']['CNT'] = '';
-																			
+                                                                            $sqll.= "update [order] set contest=".$_POST['contest']."";
+                                                                            if($_POST['contest']==1)
+                                                                                $sqll.= ", date_contest=GETDATE() ";
+                                                                            else
+                                                                                $sqll.= ", date_contest=NULL ";
+
+                                                                            $sqll.= "WHERE id='".intval($insert['id'])."'";
+                                                                            $_SESSION["user"]->db->update('[order]',$_POST['id'],$sqll);
 																			//geocoding
 																			if($zip_found) {
 																				include_once("geocode_googleapi.php");
@@ -869,13 +866,7 @@ if (isset($data['id']) && is_numeric($data['id']))
 		    	else $crestimates_cnt = $cnt;
 		  	}
   			//Search for created orders
-  			$_SESSION['user']->db->select('select top '.$_MAX_ESTORD.' o.id,o.name,o.cr_date,case when LEN(os.name)<10 THEN os.name ELSE SUBSTRING(os.name,0,10)+\'...\' END as status
-  			from [order] o
-  			left join ord_status os on o.status=os.value
-  			where o.id_account='.$data['id_account'].'
-  			and o.id<>\''.$data['id'].'\'
-  			order by o.cr_date desc');
-
+  			$_SESSION['user']->db->select('select top '.$_MAX_ESTORD.' o.id,o.name,o.cr_date,case when LEN(os.name)<10 THEN os.name ELSE SUBSTRING(os.name,0,10)+\'...\' END as status from [order] o left join ord_status os on o.status=os.value where o.id_account='.$data['id_account'].' and o.id<>\''.$data['id'].'\' order by o.cr_date desc');
   			$crorders = $_SESSION['user']->db->fetchAllArrays();
   			if (is_array($crorders))
   				{
@@ -1040,8 +1031,6 @@ $js.= ' Pick[5] =\''.$lzip['address']."'\n" ; //address estimate
 $js.= ' Pick[6] =\''.$lzip['town']."'\n" ;//address estimate
 $js.= ' Pick[7] =\''.$lzip['state']."'\n";//address estimate
 $js.= ' Pick[8] =\''.$lzip['zip']."'\n"; //address estimate
-
-	
 
 include('Smarty.class.php');
 $smarty = new Smarty;
@@ -1274,8 +1263,11 @@ if (isset($_GET['id']) && is_numeric($_GET['id']))
 			$log4->logcmd = $_REQUEST['logcmd'];
 			$smarty->assign('log_UNIT',$log4->Automate($_REQUEST,$_GET['logid'],920));
 		}
+
+
 		// logi dodatkowe
 	}
+
 //Flags
 if (isset($data['id_account']) && is_numeric($data['id_account']))
 	{
@@ -1327,6 +1319,20 @@ if($show_gps_wo_stops) {
 	$smarty->assign('gps_stops',$gps_stops);
 }
 //end info
+
+//get in info about contest
+  $_SESSION['user']->db->select("select * from dbo.[order] where id=".$_REQUEST['id']);
+  $contest = $_SESSION['user']->db->fetchArray();
+  $smarty->assign('is_contest',$contest['contest']);
+//end info
+
+
+//get in info about contest
+  $_SESSION['user']->db->select("select id, templator, installer, default_date from dbo.templator_log where id_order =".$_REQUEST['id']);
+  $arrTemplator = $_SESSION['user']->db->fetchAllArrays();
+  $smarty->assign('arTemp',$arrTemplator);
+//end info
+
 
 //get in info about slabs on hold
 if(is_numeric($_REQUEST['id'])) {

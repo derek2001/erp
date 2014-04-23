@@ -1,5 +1,6 @@
 {include file="header.tpl"}
 {dhtml_calendar_init src='js/jscalendar/calendar.js' setup_src='js/jscalendar/calendar-setup.js' lang='js/jscalendar/lang/calendar-en.js' css='js/jscalendar/calendar-system.css'}
+<link rel="stylesheet" href="./css/checkbox_style/style.css"/>
 <script type="text/javascript" src="js/design.js"></script>
 <script type="text/javascript" src="js/phone.js"></script>
 <script type="text/javascript" src="js/ajax/prototype.js"></script>
@@ -378,7 +379,110 @@ function confirmTask(type,id) {
 							}
 						}
 					});
+
+
 }
+
+
+//AJAX FUNCTION
+function freq(){
+    req = false;
+    if(window.XMLHttpRequest) {
+        try{req = new XMLHttpRequest();}
+        catch(e){req = false;}}
+    else if(window.ActiveXObject){try{req = new ActiveXObject("Msxml2.XMLHTTP");}
+    catch(e){try{req = new ActiveXObject("Microsoft.XMLHTTP");}
+    catch(e){req = false;}}}}
+//
+
+function Save(pValue){
+	if(Validate()){
+        freq();
+        if(req){
+            req.onreadystatechange = save_templater;
+            url = 'contest_response.php?type=6&id_order='+pValue+'&templator='+document.getElementById('templator').value+'&installer='+document.getElementById('installer').value+'&id_account='+document.getElementById('id_accounts').value;
+            req.open('GET', url, true);
+            req.send(null);
+        }
+    }
+}
+
+function save_templater(){
+    if (req.readyState == 4) {
+        if (req.status == 200){
+            resp = req.responseText;
+            document.getElementById('templator').value="";
+            document.getElementById('installer').value="";
+			LoadGrid(resp);
+			
+        }
+        else {
+            return false;
+        }
+    }
+}
+
+
+function Validate(){
+	if(document.getElementById('templator').value =='' && document.getElementById('installer').value ==''){
+        alert('This fields are Requiered');
+        return false;
+    }
+
+    return true;
+}
+
+
+LoadGrid({/literal}{$data.id}{literal});
+function LoadGrid(pValue){
+        freq();
+        if(req){
+            req.onreadystatechange = grid_templater;
+            url = 'contest_response.php?type=7&id_order='+pValue;
+            req.open('GET', url, true);
+            req.send(null);
+        }
+    
+}
+
+function grid_templater(){
+    if (req.readyState == 4) {
+        if (req.status == 200){
+            resp = req.responseText;
+			document.getElementById('grid_tmp').innerHTML=resp;
+        }
+        else {
+            return false;
+        }
+    }
+}
+
+function DeleteTemplator(pValue,pOrder){
+   var r=confirm("Are you sure you want to remove this Field?");
+	if (r==true)
+	{
+		freq();
+        if(req){
+            req.onreadystatechange = delete_templater;
+            url = 'contest_response.php?type=8&id='+pValue+'&id_order='+pOrder;
+            req.open('GET', url, true);
+            req.send(null);
+        }
+	} 
+}
+
+function delete_templater(){
+    if (req.readyState == 4) {
+        if (req.status == 200){
+            resp = req.responseText;
+			LoadGrid(resp);
+        }
+        else {
+            return false;
+        }
+    }
+}
+
 {/literal}
 </script>
 {assign var="module_name" value="Work Order"}
@@ -404,6 +508,7 @@ function confirmTask(type,id) {
 <input type="hidden" name="rownaj" value="0">
 <input type="hidden" name="id" id="id" value="{$id}">
 <input type="hidden" name="alastid" value="{$alastid}">
+<input type="hidden" id="id_accounts" value="{$data.id_account}">
 <input type="hidden" name="id_account" value="{$data.id_account}">
 <input type="hidden" name="pickup" value="0">
 <input type="hidden" name="is_contractor" value="{$data.is_contractor}">
@@ -434,6 +539,7 @@ function confirmTask(type,id) {
 <input type="hidden" name="oldinv_number" value="{$data.inv_number}">
 <input type="hidden" name="message" id="message" value="{$data.message}">
 <input type="hidden" name="only_template" id="only_template" value="{$data.only_template}">
+<input type="hidden" name="contest" id="contest" value="{$is_contest}">
 <input type="hidden" name="slabs_on_hold" id="slabs_on_hold" value="{$data.slabs_on_hold}">
 <input type="hidden" name="oldmessage" id="message" value="{$data.message}">
 <input type="hidden" name="old_cust_description" value="{$data.cust_description}">
@@ -743,6 +849,16 @@ function confirmTask(type,id) {
      </td>
    </tr>
    {/if}
+
+
+    <tr class="cell_reccolor_yellow_01a">
+        <td>Contest:</td>
+        <td>
+            <input type="checkbox" name="contest_chck" id="contest_chck" class="css-checkbox" {if $is_contest eq 1}checked{/if} onClick="document.getElementById('contest').value= document.getElementById('contest_chck').checked?1:0;">
+            <label for="contest_chck" class="css-label"></label>
+        </td>
+    </tr>
+
    {if ($show_slab_on_hold && $id!='') || is_array($slab_on_hold_data)}
    <tr class="cell_reccolor_yellow_01b">
      <td>Slabs on Hold: <input type="checkbox" name="slabs_on_hold_chck" id="slabs_on_hold_chck" onClick="document.getElementById('slabs_on_hold').value=document.getElementById('slabs_on_hold_chck').checked?1:0; put_slabs_onhold();"></td>
@@ -1091,14 +1207,6 @@ function open_print() {
 		  {/if}
            </td>
          </tr>
-          
-      
-
-
-
-
-
-
          {/section}
          {include file="table_footer.tpl"}
          <br />
@@ -1167,11 +1275,37 @@ function open_print() {
      </td>
 </tr></table>
 {if $id<>''}
-
+ 
 <table border="0" cellspacing="6" cellpadding="0">
-
 <tr align="center">
      <td>{$log}</td>
+</tr>
+<tr>
+    <td> 
+   
+    {assign var="table_headertitle" value="Field Communications:"}
+    {assign var="table_width" value="818"}
+    {include file="table_header.tpl"} 
+     <tr class="cell_reccolor_neutral_01">
+            <td width="70" align="left"><b>Templetor:</b></td>
+            <td width="575" align="left">
+                <input type="text" id="templator" size="40" maxlength="200">
+            </td>
+        </tr>
+        <tr class="cell_reccolor_neutral_01">
+            <td align="left"><b>Installer:</b></td>
+            <td align="left">
+                  <input type="text" id="installer" size="40" maxlength="200">&nbsp;
+                    <input type="button" value="Save Log" class="BUTTON_OK" onclick="Save({$data.id});"> 
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" height="3"></td>
+        </tr>
+    {include file="table_footer.tpl"}
+       
+        <a id="grid_tmp"></a>
+    </td>
 </tr>
 <tr>
      <td>{$log_ACC}</td>
@@ -1192,12 +1326,6 @@ function open_print() {
 
 </table>
 </center>
-
-
-
-
-
-
 <!--last column -->
 
 <!-- <table width="90%"> -->
