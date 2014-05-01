@@ -505,7 +505,7 @@ if (isset($uid) && is_numeric($uid) && !$upd_lock) {
     if (isset($uid) && is_numeric($uid)) $submenu[] = array('name' => 'Slab history', 'link' => '#" onClick="window.open(\'slab_history.php?id=' . $uid . '\',\'slab_hist\',\'width=800,height=600,toolbar=1,menu=1,scrollbars=1,resizable=1\');');
 }
 
-$_SESSION["user"]->db->select('select ou.id,ou.name as name,ou.id_application as application,a.name as app_name,e.name as default_edge from [ord_unit] ou
+$_SESSION["user"]->db->select('select ou.id,ou.name as name,ou.id_application as application,a.name as app_name,e.name as default_edge,ou.id_order as oid  from [ord_unit] ou
                                 inner join application a on a.id=ou.id_application
                                 inner join dbo.edge e on ou.id_edge = e.id
                                 where id_order='.$oid.' order by cr_date desc');

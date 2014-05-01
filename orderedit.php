@@ -625,8 +625,9 @@ else if (isset($_POST['alastid']) && lastid_check($_POST['alastid']) && !isset($
 																 	$sql .= ",zone_coef='".$data['zone_coef']."',zone_charge='".$data['zone_charge']."'";
 																if (isset($_POST['only_template']) && is_numeric($_POST['only_template']))
 																	 $sql .= ',only_template=\''.$_POST['only_template'].'\'';
-
-                                                                $sql.= ",contest=".$_POST['contest']."";
+																
+					
+															$sql.= ",contest=".($_POST['contest'] == 1 ? '1' : 'null')."";
                                                                 if($_POST['contest']==1)
                                                                     $sql.= ", date_contest=GETDATE() ";
                                                                 else
@@ -741,7 +742,7 @@ else if (isset($_POST['alastid']) && lastid_check($_POST['alastid']) && !isset($
 																  		   fax, cell, status, backsplash, edge, area, name, distance, cust_price, cust_description, tot_price, discount,
 																		   d_price, tax_level, h_improvement, xml, form, temp_date,temp_time,templated, commition, worker_cost, zone_coef, 
 																		   zone_charge,cost_per_mile, floor_nbr, id_confirm, confirm_date, close_date, no_template, pick_up, deleted,
-																		   cr_date, cr_user, contest, date_contest) VALUES([dbo].[generateWOID](),'".$data['id_account']."','".$data['id_location']."',NULL,'"
+																		   cr_date, cr_user) VALUES([dbo].[generateWOID](),'".$data['id_account']."','".$data['id_location']."',NULL,'"
 																		   .$data['inv_number']."','".str_replace("'", "''", $data['address'])."', '".str_replace("'", "''", $data['town']).
 																		   "','".$data['_state']."', '".$data['zip']."','".$data['phone']."','".$data['w_phone']."','".$data['fax']."','".
 																		   $data['cell']."','".$data['status']."',0,0,0,'".str_replace("'", "''", $data['name'])."','0',CAST('"
@@ -1324,6 +1325,7 @@ if($show_gps_wo_stops) {
   $_SESSION['user']->db->select("select * from dbo.[order] where id=".$_REQUEST['id']);
   $contest = $_SESSION['user']->db->fetchArray();
   $smarty->assign('is_contest',$contest['contest']);
+  $smarty->assign('is_contest_status',$contest['contest_status']);
 //end info
 
 

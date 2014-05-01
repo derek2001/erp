@@ -45,18 +45,36 @@
         }
         return true;
     }
-    function sub(a)
+    
+	function sub(a)
     {
-        if(a==1)
-            document.edit['act'].value = 'Saving';
-        if(a==2)
-            document.edit['act'].value = 'Sample';
-        if(a==3)
-            document.edit['act'].value = 'save';
-
-        document.edit.submit();
+		if(Validate()){
+			if(a==1)
+				document.edit['act'].value = 'Saving';
+			if(a==2)
+				document.edit['act'].value = 'Sample';
+			if(a==3)
+				document.edit['act'].value = 'save';
+		
+				document.edit.submit();
+		}
     }
 	
+	function Validate(){
+		if(document.edit['edit[name]'].value==''){
+			alert('Field Name is Required')
+			return false;
+		}
+		
+		if(document.edit['edit[id_application]'].value==''){
+			alert('Field Application is Required')
+			return false;
+		}
+		
+		
+		return true;
+		
+	}
 	
 	//AJAX FUNCTION
 function freq(){
@@ -124,6 +142,22 @@ function delete_unit(){
 {if $uid<>''}{assign var="module_name" value="Order unit"}{else}{assign var="module_name" value="Create new order unit"}{/if}
 {include file="module_header.tpl"}
 {if $error<>''}<b><font color="red">{$error}</font></b><br>{/if}
+
+<style>
+{literal}
+#content { 
+border-radius:0.3em; 
+-moz-border-radius:3px; /* Firefox */ 
+-webkit-border-radius:3px; /* Safari y Chrome */ 
+
+/* Otros estilos */ 
+border:1px solid #333;
+background:#FFFFFF;
+width:100%;
+}
+{/literal}
+</style>
+
 <center>
 <table width="1222" border="0">
 <form action="ord_unitedit.php" method="post" name="edit" onsubmit="return checkForm();"><input type="hidden" name="alastid" value="{$alastid}">
@@ -149,24 +183,41 @@ function delete_unit(){
 </tr>
 {/if}
 {/if}
+
 <tr class="cell_reccolor_lightblue_01b">
     <td>Name:*</td>
-    <td><input type="text" style="border:1px solid #000000" value="{$ord_unit.name}" name="edit[name]" size="20" maxlength="50"{$lock_form}></td>
-</tr>
-<tr class="cell_reccolor_lightblue_01a">
+    <td>
+    {if $uid<>''}
+    	<input type="text" value="{$ord_unit.name}" name="edit[name]" size="20" maxlength="50"{$lock_form}>
+    {else}
+    	<input type="text"  name="edit[name]" size="20" maxlength="50"{$lock_form}>
+    {/if}
+    
+    
+    </td>
+   
+   
+   
+   </tr>
+   <tr class="cell_reccolor_lightblue_01a">
     <td>Application:*</td>
     <td>
-        {if $lock_select==''}
-            <select name="edit[id_application]" onChange="reload();" style="border:1px solid #000000">
-                <option value=''></option>
-                {section name=d loop=$application}
-                <option value="{$application[d].id}" {if $ord_unit.id_application eq $application[d].id}selected{/if}>{$application[d].name}
-                    {/section}
+     {if $lock_select==''}
+              <select name="edit[id_application]" onChange="reload();">
+                   <option value=''></option>
+                   {section name=d loop=$application}
+                   	{if $uid<>''}
+                    	<option value="{$application[d].id}" {if $ord_unit.id_application eq $application[d].id}selected{/if}>{$application[d].name}
+                    {else}
+						<option value="{$application[d].id}">{$application[d].name}
+                    {/if}
+                   {/section}
             </select>
         {else}
             {section name=d loop=$application}
                 {if $ord_unit.id_application eq $application[d].id}{$application[d].name}{/if}
             {/section}
+            
             <input type="hidden" name="edit[id_application]" value="{$ord_unit.id_application}">
         {/if}
     </td>
@@ -176,7 +227,6 @@ function delete_unit(){
     <td>
         {if $lock_select==''}
             <select name="edit[id_edge]" style="border:1px solid #000000">
-                <option value=''></option>
                 {section name=ed loop=$edge}
                 <option value="{$edge[ed].id}" {if $uid<>''}{if $ord_unit.id_edge eq $edge[ed].id}selected{/if}{else}{if $edge[ed].id == 20}selected{/if}{/if}>{$edge[ed].name}
                     {/section}
@@ -358,8 +408,7 @@ function delete_unit(){
         <td valign="top">{$crunits1[unt1].name}</td>
         <td valign="top">{$crunits1[unt1].app_name}</td>
         <td valign="top">{$crunits1[unt1].default_edge}</td>
-        <td valign="top">
-            <img src="gfx/trash1.gif"onmouseover="this.src='gfx/trash0.gif'" onmouseout="this.src='gfx/trash0.gif'"style="cursor:hand"
+        <td valign="top"><a href="ord_unitedit.php?uid={$crunits1[unt1].id}&oid={$crunits1[unt1].oid}&id_account={$id_account}"><img src="gfx/edit_one1.gif" onmouseover="this.src='gfx/edit_one0.gif'" onmouseout="this.src='gfx/edit_one1.gif'" alt="Edit unit '{$crunits1[unt1].id}' ({$crunits1[unt1].name})" border="0"></a>&nbsp;<img src="gfx/trash1.gif"onmouseover="this.src='gfx/trash0.gif'" onmouseout="this.src='gfx/trash0.gif'"style="cursor:hand"
              onClick="DeleteUnit({$crunits1[unt1].id});" border="0" >
         </td>
         </tr>
@@ -369,6 +418,22 @@ function delete_unit(){
     <center>
         <input type="button" name="cancel" value="Go Back" class="BUTTON_CANCEL" onClick="location.href='orderedit.php?id={$oid}&id_account={$id_account}'">
     </center>
+    <br><br><div id="content">
+    <table width="450px" border="0" cellspacing="0" cellpadding="0">
+      <tr>
+        <td align="center"><font color="#FF0000" size="2"><b>WARNING!</b></font></td>
+      </tr>
+      <tr>
+        <td align="center">
+        <font color="#FF0000" size="2">
+        Please discuss the amount of units with customer while scheduling templates!<br>Please name units accordingly. Check your spelling on units names.<br>Use separate units for Master Bathroom (vanities) and Master Tub Desk etc.<br>
+        All template schedule conversations are being monitored and verified.</font></td>
+      </tr>
+      <tr>
+        <td align="center"><font color="#FF0000" size="2"><b>ALL UNITS MUST BE IN THE WO BEFORE THE TEMPALTES!</b></font></td>
+      </tr>
+    </table></div>
+
 {/if}
 <!------------------------------------------------------------------------------------------------>
 {if is_array($e_forms)}
@@ -396,9 +461,7 @@ function delete_unit(){
                     else if(szer > 1280) szer = 1601;
                     else szer = 1281;
                 </script>
-                {if $e_forms[e].signed != 1}<a href="#" onClick="javascript:window.open('e_forms.php?oid={$oid}&fid={$e_forms[e].id}','print_eform','height=740,width=1024,left='+szer+',top=0,toolbar=0,menu=0,scrollbars=0,resizable=0');">{$e_forms[e].name}</a>{else}
-                    <a href="#" onClick="javascript:window.open('e_forms.php?oid={$oid}&fid={$e_forms[e].id}','print_eform','height=880,width=750,toolbar=1,menu=1,scrollbars=1,resizable=0');">{$e_forms[e].name}</a>{/if}
-            </td>
+                {if $e_forms[e].signed != 1}<a href="#" onClick="javascript:window.open('e_forms.php?oid={$oid}&fid={$e_forms[e].id}','print_eform','height=740,width=1024,left='+szer+',top=0,toolbar=0,menu=0,scrollbars=0,resizable=0');">{$e_forms[e].name}</a>{else}                    <a href="#" onClick="javascript:window.open('e_forms.php?oid={$oid}&fid={$e_forms[e].id}','print_eform','height=880,width=750,toolbar=1,menu=1,scrollbars=1,resizable=0');">{$e_forms[e].name}</a>{/if}            </td>
             <td width="85">
                 {if $e_forms[e].signed == 1}<font color="#FF0000">Yes</font>{else}No{/if}
             </td>

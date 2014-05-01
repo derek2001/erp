@@ -224,40 +224,13 @@
         </TR>
   <TR  style="display: {if $data.order.contest == 0}none;{/if}">
   <TD>
-
-          <table width="100%" border="0" cellspacing="1" cellpadding="1" bgcolor="black">
-              <tr>
-                  <td width="30px" align="center">&nbsp;</td>
-                  <td width="20px" align="right">
-                      <img src="./css/images/camera3.jpg" width="24" height="22" alt="Take Photos Contest"/>
-                  </td>
-                  <td width="570px" bgcolor="black">&nbsp;&nbsp;<SPAN style="FONT: 14px arial,verdana,tahoma;color:white"><strong>TAKE PHOTOS FOR CONTEST</strong> </SPAN></td>
-                  <td width="50px" align="center">&nbsp;</td>
-              </tr>
-          </table>
-
+	<img src="./css/images/contest_bg.png" width="321" height="32" />
   </TD>
   </TR>
   <TR> 
   <TD colSpan=2 height="1" valign="top" width="100%" bgcolor="#7f7f7f"></TD></TR>
   <TR>
     <TD colSpan=2>
-    <TABLE cellSpacing=0 cellPadding=0 width="100%" border=0 style="display:{if $templator_count[0].cantidad <= 0}none;{/if}">
-     <TR>
-      <TD width="7%" nowrap style="FONT: 16px arial,verdana,tahoma" valign="top"><B>Templater:&nbsp;</B></TD>
-      <TD width="93%" nowrap style="FONT: 16px arial,verdana,tahoma">
-      	 <table width="100%" border="0" cellspacing="0" cellpadding="0" bordercolor="#FFFFFF">
-            {section name=in loop=$templator}
-             <tr class="{cycle values="cell_reccolor_lightblue_01a,cell_reccolor_lightblue_01b"}";>
-                {if $templator[in].temp != ''}<td valign="top">{$templator[in].temp}</td>{/if}
-             	{if $templator[in].inst != ''}<td valign="top">{$templator[in].inst}</td>{/if}   
-             </tr>
-            {/section}
-         </table>
-      </TD>
-     </TR>
-    </TABLE>
-
       <TABLE cellSpacing=0 cellPadding=0 width="100%" border=0>
         <TBODY>
         <TR>
